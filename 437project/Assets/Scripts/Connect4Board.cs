@@ -22,6 +22,19 @@ public class Connect4Board
         return b;
     }
 
+    public static int[,] CopyBoard(int[,] b)
+    {
+        int[,] n = new int[6, 7];
+        for (int i = 0; i < 6; i++)
+        {
+            for (int j = 0; j < 7; j++)
+            {
+                n[i, j] = b[i, j];
+            }
+        }
+        return n;
+    }
+
     public static int Evaluate(int[,] b)
     {
         int score = 0;
@@ -35,6 +48,37 @@ public class Connect4Board
         }
         score += ColumnSweep(b, 6);
         return score;
+    }
+
+    public static int MiniMax(int[,] b, int player, int depth, int alpha, int beta)
+    {
+        if (depth == 0 || CheckWin(b) != 0)
+        {
+            return Evaluate(b);
+        }
+
+        int bestScore = player == -1 ? 1000000 : -1000000;
+        for (int i = 0; i < 7; i++)
+        {
+            if (PlaceChip(b, i, player)) {
+                //bestScore = Math.Max(-MiniMax(b, -player, depth - 1, -beta, -alpha), bestScore);
+                if (player == 1)
+                {
+                    bestScore = Math.Max(bestScore, MiniMax(b, -1, depth - 1, alpha, beta));
+                } 
+                else
+                {
+                    bestScore = Math.Min(bestScore, MiniMax(b, 1, depth - 1, alpha, beta));
+                }
+                    //alpha = Math.Max(alpha, bestScore);
+                    PopChip(b, i);
+                //if (alpha >= beta)
+                //{
+                //    break;
+                //}
+            }
+        }
+        return bestScore;
     }
 
     public static int CheckWin(int[,] b)
@@ -92,6 +136,19 @@ public class Connect4Board
         {
             return false;
         }
+    }
+
+    public static bool PopChip(int[,] b, int c)
+    {
+        for (int i = 5; i >= 0; i--)
+        {
+            if (b[i, c] != 0)
+            {
+                b[i, c] = 0;
+                return true;
+            }
+        }
+        return false;
     }
 
     private static int RowSweep(int[,] b, int r)
